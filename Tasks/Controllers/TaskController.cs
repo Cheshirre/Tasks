@@ -51,10 +51,9 @@ namespace Tasks.Controllers
 
             _repository.UpdateStatus(task.Guid, statuses["running"]);
 
-
-            var background = System.Threading.Tasks.Task.Run(() =>
+            var background = System.Threading.Tasks.Task.Run(async () =>
             {
-                BackgroundWork(task.Guid, statuses);
+                await BackgroundWork(task.Guid, statuses);
             });
 
             Response.StatusCode = 202;
@@ -64,10 +63,12 @@ namespace Tasks.Controllers
             };
         }
 
-        private void BackgroundWork(Guid id, Dictionary<string, int> statuses)
+        private async System.Threading.Tasks.Task BackgroundWork(Guid id, Dictionary<string, int> statuses)
         {
             _repository.UpdateStatus(id, statuses["running"]);
-            Thread.Sleep(120000);
+
+            await System.Threading.Tasks.Task.Delay(120000);
+
             _repository.UpdateStatus(id, statuses["finished"]);
         }
     }

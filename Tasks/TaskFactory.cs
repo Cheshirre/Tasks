@@ -12,20 +12,12 @@ namespace Tasks
     {
         public Task Create(Dictionary<string, int> statuses)
         {
-            try
+            return new Task
             {
-                return new Task
-                {
-                    Guid = Guid.NewGuid(),
-                    StatusId = statuses["created"],
-                    TimeStamp = DateTime.Now
-                };
-            }
-            catch (Exception)
-            {
-                //....
-                throw;
-            }
+                Guid = Guid.NewGuid(),
+                StatusId = statuses["created"],
+                TimeStamp = DateTime.Now
+            };
         }
     }
 }
