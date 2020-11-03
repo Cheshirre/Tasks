@@ -10,14 +10,14 @@ namespace Tasks
 {
     public class TaskFactory : ITaskFactory
     {
-        public Task Create(Dictionary<string, Status> statuses)
+        public Task Create(Dictionary<string, int> statuses)
         {
             try
             {
                 return new Task
                 {
                     Guid = Guid.NewGuid(),
-                    StatusId = statuses["Created"].Id,
+                    StatusId = statuses["created"],
                     TimeStamp = DateTime.Now
                 };
             }

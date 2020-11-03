@@ -9,5 +9,6 @@ namespace Api.Repository
         Guid Create(Task task);
         Task Get(Guid id);
         IEnumerable<Status> GetStatuses();
+        bool UpdateStatus(Guid id, int statusId);
     }
 }

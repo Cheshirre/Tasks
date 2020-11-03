@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using Api.Database.Entity;
 using Api.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -29,33 +31,44 @@ namespace Tasks.Controllers
         {
             var task = _repository.Get(id);
 
-            if (task != null)
-                return new TaskModel
-                {
-                    Status = task.Status.Name,
-                    Timestamp = task.TimeStamp.ToString("o", CultureInfo.InvariantCulture)
-                };
-            else
+            if (task == null)
+                throw new System.Web.Http.HttpResponseException(HttpStatusCode.NotFound);
+            
+            return new TaskModel
             {
-                Response.StatusCode = 404;
-
-                return new TaskModel();
-            }
+                Status = task.Status.Name,
+                Timestamp = task.TimeStamp.ToString("o", CultureInfo.InvariantCulture)
+            };
         }
 
         // POST <TaskController>
         [HttpPost]
         public object Post()
         {
-            var statuses = _repository.GetStatuses().ToDictionary(x => x.Name);
+            var statuses = _repository.GetStatuses().ToDictionary(x => x.Name, x => x.Id);
             var task = _factory.Create(statuses);
             _repository.Create(task);
 
-            //Task background = Task.Run(() => { });
+            _repository.UpdateStatus(task.Guid, statuses["running"]);
+
+
+            var background = System.Threading.Tasks.Task.Run(() =>
+            {
+                BackgroundWork(task.Guid, statuses);
+            });
+
+            Response.StatusCode = 202;
 
             return new {
                 Guid = task.Guid
             };
+        }
+
+        private void BackgroundWork(Guid id, Dictionary<string, int> statuses)
+        {
+            _repository.UpdateStatus(id, statuses["running"]);
+            Thread.Sleep(120000);
+            _repository.UpdateStatus(id, statuses["finished"]);
         }
     }
 }

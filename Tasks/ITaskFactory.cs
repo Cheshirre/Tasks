@@ -8,6 +8,6 @@ namespace Tasks
 {
     public interface ITaskFactory
     {
-        Task Create(Dictionary<string, Status> statuses); 
+        Task Create(Dictionary<string, int> statuses); 
     }
 }

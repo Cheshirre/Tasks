@@ -34,5 +34,23 @@ namespace Api.Repository
         {
             return _context.Status;
         }
+
+        public bool UpdateStatus(Guid id, int statusId)
+        {
+            bool success = false;
+
+            var target = _context.Tasks.FirstOrDefault(x => x.Guid == id);
+            if (target != null)
+            {
+                target.StatusId = statusId;
+                target.TimeStamp = DateTime.Now;
+
+                _context.SaveChanges();
+
+                success = true;
+            }
+
+            return success;
+        }
     }
 }
