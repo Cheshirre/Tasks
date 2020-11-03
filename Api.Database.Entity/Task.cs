@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace TaskLibrary
+namespace Api.Database.Entity
 {
-    public enum Status {
-        Created,
-        Running,
-        Finishing
-    }
-
     public class Task
     {
-        public Status Status { get; set; }
+        public int StatusId { get; set; }
         public DateTime TimeStamp { get; set; }
         public Guid Guid { get; set; }
+        public virtual Status Status { get; set; }
     }
 }

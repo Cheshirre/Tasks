@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
+using Api.Database.Entity;
+using Api.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -12,36 +15,47 @@ namespace Tasks.Controllers
     [ApiController]
     public class TaskController : ControllerBase
     {
-        // GET: <TaskController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        readonly ITaskFactory _factory;
+        readonly IRepository _repository;
+        public TaskController(ITaskFactory factory, IRepository repository)
         {
-            return new string[] { "value1", "value2" };
+            _factory = factory;
+            _repository = repository;
         }
 
         // GET <TaskController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public TaskModel Get(Guid id)
         {
-            return "value";
+            var task = _repository.Get(id);
+
+            if (task != null)
+                return new TaskModel
+                {
+                    Status = task.Status.Name,
+                    Timestamp = task.TimeStamp.ToString("o", CultureInfo.InvariantCulture)
+                };
+            else
+            {
+                Response.StatusCode = 404;
+
+                return new TaskModel();
+            }
         }
 
         // POST <TaskController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public object Post()
         {
-        }
+            var statuses = _repository.GetStatuses().ToDictionary(x => x.Name);
+            var task = _factory.Create(statuses);
+            _repository.Create(task);
 
-        // PUT <TaskController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+            //Task background = Task.Run(() => { });
 
-        // DELETE <TaskController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return new {
+                Guid = task.Guid
+            };
         }
     }
 }

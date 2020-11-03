@@ -1,18 +1,23 @@
-﻿using System;
+﻿using Api.Database.Entity;
+using Api.Repository;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace TaskLibrary
+namespace Tasks
 {
     public class TaskFactory : ITaskFactory
     {
-        public Task Create()
+        public Task Create(Dictionary<string, Status> statuses)
         {
             try
             {
-                return new Task {
+                return new Task
+                {
                     Guid = Guid.NewGuid(),
-                    Status = Status.Created,
+                    StatusId = statuses["Created"].Id,
                     TimeStamp = DateTime.Now
                 };
             }
